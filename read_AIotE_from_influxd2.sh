@@ -1,6 +1,6 @@
 #!/bin/bash
-AGODAYS=${AGODAYS:30}
 # Nachfolgende Variablen müssen als Umgebungsvrariablen in der Docker-Umgebung gesetzt werden 
+# AGODAYS=1...9999 -> wir wollen das mit der vom Java angebotenen FIRST_DAY Variable ersetzen ... coming soon
 # INFLUXDB2_IP=192.168.0.1
 # INFLUXDB2_PORT=8087
 # INFLUXDB2_ORG="xxxxxxxxxxxxxxxx"

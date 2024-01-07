@@ -1,9 +1,10 @@
 #!/bin/bash
-AGODAYS=29
-INFLUXDB2_IP=192.168.0.1
-INFLUXDB2_PORT=8087
-INFLUXDB2_ORG="xxxxxxxxxxxxxxxx"
-INFLUXDB2_TOKEN="#####################################################################################=="
+AGODAYS=${AGODAYS:30}
+# Nachfolgende Variablen müssen als Umgebungsvrariablen gesetzt werden 
+# INFLUXDB2_IP=192.168.0.1
+# INFLUXDB2_PORT=8087
+# INFLUXDB2_ORG="xxxxxxxxxxxxxxxx"
+# INFLUXDB2_TOKEN="#####################################################################################=="
 
 alldata=$(
 for days in `seq ${AGODAYS} -1 0` ; do

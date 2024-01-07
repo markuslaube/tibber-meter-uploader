@@ -21,6 +21,30 @@ docker run -it --rm \
   ghcr.io/micw/tibber-meter-uploader:master
 ```
 
+## Code für Stack im Portainer
+
+```
+version: "3.9"
+services:
+  tibber-meter-uploader:
+    user: 1000:1000
+    environment:
+     - "TIBBER_LOGIN=me@example.com"
+     - "TIBBER_PASSWORD=######-######-######"
+     - "DRY_RUN=false"
+     - "TIBBER_METER_REGISTER_ID=1-1:1.8.0"
+     - "SCHEDULING_ENABLED=true"
+     - "READINGS_SOURCE_CLASS=ScriptedRestApiMeterReadingSource"
+     - "READINGS_SCRIPT_COMMAND=/read_AIotE_from_influxd2.sh"
+     - "AGODAYS=7"
+     - "INFLUXDB2_IP=<<ip of influxdb>>"
+     - "INFLUXDB2_PORT=<<port of influxdb>>"
+     - "INFLUXDB2_ORG=################"
+     - "INFLUXDB2_TOKEN=#################################################_####################################=="
+     - "TZ=Europe/Berlin"
+    image: "laubi/tibber-meter-uploader:latest"
+```
+
 ## Ausführen (nativ)
 
 Pre-built jars can be downloaded from https://mega.nz/folder/pi4yjaoI#OXNDwnkfyH6xOEJEdtN3pg . To run it, you need a Java Runtime Environment (JRE) with version 11 or higher installed. COnfig can be passed as environment variables or by creating `appliucation.yaml` in the working directory (e.g. next to the downloaded jar file).

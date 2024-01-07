@@ -1,10 +1,14 @@
 #!/bin/bash
 AGODAYS=${AGODAYS:30}
-# Nachfolgende Variablen müssen als Umgebungsvrariablen gesetzt werden 
+# Nachfolgende Variablen müssen als Umgebungsvrariablen in der Docker-Umgebung gesetzt werden 
 # INFLUXDB2_IP=192.168.0.1
 # INFLUXDB2_PORT=8087
 # INFLUXDB2_ORG="xxxxxxxxxxxxxxxx"
 # INFLUXDB2_TOKEN="#####################################################################################=="
+
+# We need the variables from the Docker system. Thanks to Java, which is trying to withhold them from me. Fortunately, they are always available in process "1".
+cat /proc/1/environ | tr '\0' '\n' > /tmp/envimport
+. /tmp/envimport
 
 alldata=$(
 for days in `seq ${AGODAYS} -1 0` ; do

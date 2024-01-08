@@ -1,16 +1,28 @@
 #!/bin/bash
-# Nachfolgende Variablen müssen als Umgebungsvrariablen in der Docker-Umgebung gesetzt werden 
-# AGODAYS=1...9999 -> wir wollen das mit der vom Java angebotenen FIRST_DAY Variable ersetzen ... coming soon
+# Nachfolgende Variablen müssen/können als Umgebungsvrariablen in der Docker-Umgebung gesetzt werden 
+# Pflicht:
 # INFLUXDB2_IP=192.168.0.1
 # INFLUXDB2_PORT=8087
 # INFLUXDB2_ORG="xxxxxxxxxxxxxxxx"
 # INFLUXDB2_TOKEN="#####################################################################################=="
+# Optional:
+# AGODAYS=1...9999 Wieviele Tage zurück sollen Tageswerte abgefragt werden. wenn nicht dann nutzen wir FIRST_DAY
 
 # We need the variables from the Docker system. Thanks to Java, which is trying to withhold them from me. Fortunately, they are always available in process "1".
 cat /proc/1/environ | tr '\0' '\n' > /tmp/envimport
 . /tmp/envimport
 
+# ermittle Anzahl der Tage die wir abfragen wollen
+if [[ -z ${AGODAYS+z} ]] ; then
+        TODAY_HUMAN="$(date +%F)"
+        TODAY_UNIX=$(date +%s -d "${TODAY}")
+        FIRSTDAY_UNIX=$(date +%s -d "${FIRST_DAY}")
+        AGODAYS="$(((${TODAY_UNIX}-${FIRSTDAY_UNIX})/60/60/24))"
+fi
+
 alldata=$(
+
+# noch machen wir eine for-Schleife pro Tag, geht das vielleicht einfacher, mir aktuell der einfachste weg :D
 for days in `seq ${AGODAYS} -1 0` ; do
 
         DAY=$(date +%F -d "$days days ago")

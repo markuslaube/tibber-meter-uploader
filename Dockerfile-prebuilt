@@ -1,8 +1,9 @@
 # Build docker image based of the artifact created by `mvn package`
-FROM openjdk:17-alpine
+FROM openjdk:23-slim-bookworm
 
-RUN apk add --no-cache curl jq bash
+RUN apt-get -y update && apt-get -y install jq bash curl coreutils
 
 ADD target/tibber-meter-uploader-1.0.0-SNAPSHOT.jar /tibber-meter-uploader-1.0.0-SNAPSHOT.jar
+COPY read_AIotE_from_influxd2.sh /read_AIotE_from_influxd2.sh
 
 CMD /tibber-meter-uploader-1.0.0-SNAPSHOT.jar

@@ -4,11 +4,15 @@ Dieses Tool verwendet die Tibber-API, welcher unter https://app.tibber.com/v4/gq
 
 Es kann als Alternative zur manuellen monatlichen Eingabe von Zählerständen verwendet werden und ist nicht als Ersatz für den "Tibber Pulse" gedacht, welcher stündliche Werte übermittelt.
 
-## Bauen
+Das ganze hier ist ein Fork von https://github.com/micw/tibber-meter-uploader Ursprünglich "nur" um Doker Container für Raspberrys zu erstellen, für die kein openjdk:17-alpine verfügbar ist (war). Das ganze wurde dann auf genau (m)einen Anwendungsfall optimiert:
 
-Das Projekt kann mit Java und Maven gebaut werden (`mvn package`). Das Weiteren liegt ein Dockerfile bei, welches ein Packaging via `docker build . -t tibber-meter-uploader` ermöglicht.
+- Ferraris-Zähler (https://de.wikipedia.org/wiki/Ferraris-Zähler)
+- Tibber Stromvertrag (https://developer.tibber.com) -> Werbecode nicht enthalten, gern per Mail.
+- AI on the Edge zur Zählerstandsermittlung (https://github.com/jomjol/AI-on-the-edge-device)
+- Home Assistant (https://www.home-assistant.io)
+- InfluxDB2 (https://github.com/influxdata/influxdb)
 
-Automatisierte Docker-Builds sind unter ghcr.io/micw/tibber-meter-uploader verfügbar.
+Der Container ist so optimiert, das er in einer Docker (Swarm) Umgebung Stateless, sprich ohne eigenes Volume, autark laufen kann und die Zählerdaten an Tibber überträg.
 
 ## Ausführen (docker)
 
@@ -18,7 +22,17 @@ docker run -it --rm \
   -e "READINGS_SCRIPT_COMMAND=echo test; exit 1" \
   -e TIBBER_LOGIN=me@example.com \
   -e TIBBER_PASSWORD=mysecretpassword \
-  ghcr.io/micw/tibber-meter-uploader:master
+  -e DRY_RUN=false' \
+  -e TIBBER_METER_REGISTER_ID=1-1:1.8.0 \
+  -e SCHEDULING_ENABLED=true" \
+  -e READINGS_SOURCE_CLASS=ScriptedRestApiMeterReadingSource"
+  -e READINGS_SCRIPT_COMMAND=/read_AIotE_from_influxd2.sh"
+  -e INFLUXDB2_IP=<<ip of influxdb>>"
+  -e INFLUXDB2_PORT=<<port of influxdb>>"
+  -e INFLUXDB2_ORG=################"
+  -e INFLUXDB2_TOKEN=#################################################_####################################=="
+  -e TZ=Europe/Berlin"
+  laubi/tibber-meter-uploader:latest
 ```
 
 ## Code für Stack im Portainer
@@ -30,13 +44,12 @@ services:
     user: 1000:1000
     environment:
      - "TIBBER_LOGIN=me@example.com"
-     - "TIBBER_PASSWORD=######-######-######"
+     - "TIBBER_PASSWORD=mysecretpassword"
      - "DRY_RUN=false"
      - "TIBBER_METER_REGISTER_ID=1-1:1.8.0"
      - "SCHEDULING_ENABLED=true"
      - "READINGS_SOURCE_CLASS=ScriptedRestApiMeterReadingSource"
      - "READINGS_SCRIPT_COMMAND=/read_AIotE_from_influxd2.sh"
-     - "AGODAYS=7"
      - "INFLUXDB2_IP=<<ip of influxdb>>"
      - "INFLUXDB2_PORT=<<port of influxdb>>"
      - "INFLUXDB2_ORG=################"
@@ -45,30 +58,21 @@ services:
     image: "laubi/tibber-meter-uploader:latest"
 ```
 
-## Ausführen (nativ)
-
-Pre-built jars can be downloaded from https://mega.nz/folder/pi4yjaoI#OXNDwnkfyH6xOEJEdtN3pg . To run it, you need a Java Runtime Environment (JRE) with version 11 or higher installed. COnfig can be passed as environment variables or by creating `appliucation.yaml` in the working directory (e.g. next to the downloaded jar file).
-
-Example:
-
-```
-echo "TIBBER_LOGIN: me@example.com" > application.yaml
-echo "TIBBER_PASSWORD: mysecretpassword" >> application.yaml
-java -Xmx25M -jar tibber-meter-uploader.master.jar 
-```
-
-Memory assignment of the process can be tuned by the `-Xmx` option - adjust it to your needs so that the process does not get an out of memory error.
-
 ## Konfiguration
 
-Die Konfiguration erfolgt über eine Konfigurationsdatei (`application.yaml`, siehe Beispiel im Wurzelverzeichnis) oder über Umgebungsvariablen.
+Die Konfiguration erfolgt über Umgebungsvariablen.
 
 * `TIBBER_LOGIN` (benötigt): E-Mail-Adresse eines Tibber-Accounts
 * `TIBBER_PASSWORD` (benötigt): Passwort eines Tibber-Accounts
-* `READINGS_SOURCE_CLASS` (benötigt): Implementierungsklasse der Quelle für Zählerstände (siehe unten)
+* `READINGS_SOURCE_CLASS` (benötigt): `ScriptedRestApiMeterReadingSource` - Implementierungsklasse der Quelle für Zählerstände (siehe unten)
+* `INFLUXDB2_IP` (benötigt): <<ip of influxdb>>"
+* `INFLUXDB2_PORT` (benötigt): <<port of influxdb>>"
+* `INFLUXDB2_ORG` (benötigt): ORG ID der Daten in der InfluxDB
+* `INFLUXDB2_TOKEN` (benötigt): Influx DB2 User Token
 * `SCHEDULING_ENABLED` (default: `true`): Wenn der Parameter auf `false` gesetzt wird, terminiert der Prozess nach einem einmaligen Durchlauf
 * `SCHEDULING_CRON` (default: `0 0 * * * *` = jede volle Stunde): Ermöglicht, den Ausführungszeitpunkt der regelmäßigen Durchläufe zu verändern
 * `DRY_RUN` (default: `false`): Wenn der Parameter auf `true` gesetzt wird, werden die an an Tibber zu übermittelnden Zählerstände nur angezeigt, aber nicht übertragen. Nützlich, um Quellen und die Konfiguration zu testen.
+
 
 ### Meter Register ID
 

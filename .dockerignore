@@ -4,3 +4,4 @@
 !pom.xml
 !Dockerfile
 !Dockerfile-prebuilt
+!read_AIotE_from_influxd2.sh

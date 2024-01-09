@@ -15,7 +15,7 @@ cat /proc/1/environ | tr '\0' '\n' > /tmp/envimport
 # ermittle Anzahl der Tage die wir abfragen wollen
 if [[ -z ${AGODAYS+z} ]] ; then
         TODAY_HUMAN="$(date +%F)"
-        TODAY_UNIX=$(date +%s -d "${TODAY}")
+        TODAY_UNIX=$(date +%s -d "${TODAY_HUMAN}")
         FIRSTDAY_UNIX=$(date +%s -d "${FIRST_DAY}")
         AGODAYS="$(((${TODAY_UNIX}-${FIRSTDAY_UNIX})/60/60/24))"
 fi

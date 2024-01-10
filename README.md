@@ -1,3 +1,18 @@
+# Alpine Linux Raspberry (BETA)
+Der Ursprüngliche Code hat bei mir bei der "Advanced image analysis , provided by Docker Scout" *43* Schwachstellen aufgezeigt. Sicherlich im Bereich Home Use in Verbindung mit einer gekapselten Umegbung   nicht tragisch, aber schön ist etwas anderes. Von daher habe ich mich - ohne jede Java-Erfahrung - dran gemacht. Das ganze zu patchen:
+
+OS:
+- Also ersteinmal wieder Openjdk auf basis von Alpine Linux, Leichtgewichtiger = weniger Software = weniger Schwachstellenrisiken
+
+Applikation: Grundsätzlich in Summe nur Anpassungen an der pom.xml:
+- springframework auf aktuelle Version gehoben
+- einige andere Themen mittels Version Pinning nach oben gezogen
+- minidev.net hinzugefügt, da das jetzt (vermutlich wegen geänderten Abhängigkeiten) nicht mehr da war bzw. neu fehlte ...
+
+Das ganze ist bei mir mit meinem Account ganz gut durchgetestet und hat jetzt lt. "Advanced image analysis , provided by Docker Scout" am 2024-01-10 keine* #Schwachstellen mehr.
+
+Im Dockerhub läufts bei mit unter laubi/tibber-meter-uploader:alpine_beta. Aktuell Beta, da ich noch nicht ansatzweise ahne was ich mit dem neuen Springboot alles kaputt gemacht haben könnte.
+
 # Tibber Meter Uploader
 
 Dieses Tool verwendet die Tibber-API, welcher unter https://app.tibber.com/v4/gql verfügbar ist, um tägliche Zählerstände automatisiert hochzuladen.
@@ -13,8 +28,6 @@ Das ganze hier ist ein Fork von https://github.com/micw/tibber-meter-uploader Ur
 - InfluxDB2 (https://github.com/influxdata/influxdb)
 
 Der Container ist so optimiert, das er in einer Docker (Swarm) Umgebung Stateless, sprich ohne eigenes Volume, autark laufen kann und die Zählerdaten an Tibber überträg.
-
-Diese Version ist eine Testversion mit Alpine Linux und entsprechenden Security-Optimierungen innerhalb der Maven Build Umgebung.
 
 ## Ausführen (docker)
 
@@ -57,7 +70,7 @@ services:
      - "INFLUXDB2_ORG=################"
      - "INFLUXDB2_TOKEN=#################################################_####################################=="
      - "TZ=Europe/Berlin"
-    image: "laubi/tibber-meter-uploader:latest"
+    image: "laubi/tibber-meter-uploader:alpine_beta"
 ```
 
 ## Konfiguration

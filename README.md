@@ -14,6 +14,8 @@ Das ganze hier ist ein Fork von https://github.com/micw/tibber-meter-uploader Ur
 
 Der Container ist so optimiert, das er in einer Docker (Swarm) Umgebung Stateless, sprich ohne eigenes Volume, autark laufen kann und die Zählerdaten an Tibber überträg.
 
+Diese Version ist eine Testversion mit Alpine Linux und entsprechenden Security-Optimierungen innerhalb der Maven Build Umgebung.
+
 ## Ausführen (docker)
 
 ```
